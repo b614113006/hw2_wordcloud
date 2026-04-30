@@ -52,7 +52,7 @@ class WordCloudApp:
         words = raw_text.lower().split()
         word_counts = {} # 這是一個 Hash Table [cite: 329]
         
-        # 排除 Stop Words
+        # 排除 Stop Words (加分點)
         custom_stopwords = set(STOPWORDS)
         
         for w in words:
@@ -63,13 +63,12 @@ class WordCloudApp:
 
         # 3. 繪製文字雲 (橫直交錯設計)
         wc = WordCloud(
-            font_path="C:/Windows/Fonts/msjh.ttc",  # <--- 就在這裡插入這一行！
             background_color="white",
             width=800,
             height=400,
             max_words=100,
-            prefer_horizontal=0.6,
-            colormap='Reds_r'
+            prefer_horizontal=0.6, # 設定橫直比例 (0.6 代表 60% 橫，40% 直)
+            colormap='Reds_r' # 參考圖片範例一的色系
         ).generate_from_frequencies(word_counts)
 
         # 轉換為 TK 可顯示的格式
@@ -87,6 +86,11 @@ class WordCloudApp:
                 messagebox.showinfo("成功", "圖檔已儲存")
         else:
             messagebox.showwarning("警告", "請先產生文字雲")
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = WordCloudApp(root)
+    root.mainloop()
 
 if __name__ == "__main__":
     root = tk.Tk()

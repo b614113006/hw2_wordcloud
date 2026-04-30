@@ -4,6 +4,7 @@ from wordcloud import WordCloud, STOPWORDS
 import matplotlib.pyplot as plt
 from PIL import Image, ImageTk
 import io
+import jieba
 
 class WordCloudApp:
     def __init__(self, root):
@@ -48,31 +49,28 @@ class WordCloudApp:
             messagebox.showwarning("警告", "請先輸入文字")
             return
 
+        # --- 運用 jieba 進行中文斷詞，解決長句子問題 ---
+        words_list = jieba.cut(raw_text) 
+        cut_text = " ".join(words_list) # 斷好的詞用空格連起來
+        
         # 2. 運用 Hash 找出高頻率文字
-        words = raw_text.lower().split()
-        word_counts = {} # 這是一個 Hash Table [cite: 329]
-        
-        # 排除 Stop Words
-        custom_stopwords = set(STOPWORDS)
-        
-        for w in words:
-            clean_w = ''.join(e for e in w if e.isalnum())
-            if clean_w and clean_w not in custom_stopwords:
-                # 運用 Hash 存取與更新 [cite: 330, 331]
-                word_counts[clean_w] = word_counts.get(clean_w, 0) + 1
+        word_counts = {} # 建立一個 Hash Table
+        for w in cut_text.split():
+            if w not in set(STOPWORDS): # 排除 Stop words
+                word_counts[w] = word_counts.get(w, 0) + 1 # 運用 Hash 存取
 
-        # 3. 繪製文字雲 (橫直交錯設計)
+        # 繪製文字雲
         wc = WordCloud(
-            font_path="C:/Windows/Fonts/msjh.ttc",  # <--- 就在這裡插入這一行！
+            font_path="C:/Windows/Fonts/msjh.ttc", # 解決方框問題
             background_color="white",
             width=800,
             height=400,
             max_words=100,
-            prefer_horizontal=0.6,
+            prefer_horizontal=0.6, # 設定橫直比例[cite: 1]
             colormap='Reds_r'
-        ).generate_from_frequencies(word_counts)
+        ).generate_from_frequencies(word_counts) # 從算好的 Hash 頻率產生圖片
 
-        # 轉換為 TK 可顯示的格式
+        # 轉換為 TK 顯示格式
         img = wc.to_image()
         self.current_wc_image = img
         tk_img = ImageTk.PhotoImage(img)
